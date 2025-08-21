@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/app/api/auth/AuthContext";
 import { FaUserCircle } from "react-icons/fa";
+import Image from "next/image"; // ✅ Import Next.js Image
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -14,12 +15,8 @@ export default function Navbar() {
 
   const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
 
-  // ✅ Hide Navbar completely on admin pages
-  if (pathname.startsWith("/Admin")) {
-    return null;
-  }
+  if (pathname.startsWith("/Admin")) return null;
 
-  // Base links for all users
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Workouts", href: "/Exercise" },
@@ -29,11 +26,10 @@ export default function Navbar() {
     { name: "Contact", href: "/ContactUS" },
   ];
 
-  // ✅ Add "" tab only for the admin user
   const finalNavLinks = [
     ...navLinks,
     ...(user &&
-      user.email?.toLowerCase().trim() === ADMIN_EMAIL?.toLowerCase().trim()
+    user.email?.toLowerCase().trim() === ADMIN_EMAIL?.toLowerCase().trim()
       ? [{ name: "Admin Panel", href: "/Admin" }]
       : []),
   ];
@@ -47,10 +43,20 @@ export default function Navbar() {
   if (loading) return null;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 px-4 md:px-12 py-3 bg-gradient-to-r from-gray-900 via-[#1e2f2e] to-black bg-opacity-95 backdrop-blur-md shadow-md hover:shadow-xl transition-shadow duration-300">
+    <header className="fixed top-0 left-0 right-0 z-50 px-4 md:px-12 py-3 bg-gradient-to-l from-gray-900 via-[#1e2f2e] to-black bg-opacity-95 backdrop-blur-md shadow-md hover:shadow-xl transition-shadow duration-300">
       <div className="flex items-center justify-between h-[70px] w-full">
-        <Link href="/" className="text-xl md:text-2xl font-extrabold text-white">
-          Muscle<span className="text-emerald-300">Factory</span>
+        {/* Logo */}
+        <Link href="/" className="flex items-center">
+          <div className="relative h-10 md:h-24 w-auto">
+            <Image
+              src="/images/logo.jpg"
+              alt="MuscleFactory Logo"
+              width={96}  // ✅ Set width (can adjust)
+              height={96} // ✅ Set height (can adjust)
+              className="object-contain"
+              priority
+            />
+          </div>
         </Link>
 
         {/* Desktop Navigation */}
@@ -79,7 +85,7 @@ export default function Navbar() {
             <>
               <button
                 onClick={() => router.push("/Profile")}
-                className="text-white text-2xl hover:text-emerald-400 transition"
+                className="text-white text-3xl md:text-4xl hover:text-emerald-400 transition"
                 aria-label="Profile"
               >
                 <FaUserCircle />
@@ -107,8 +113,17 @@ export default function Navbar() {
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-[999] bg-gradient-to-br from-black via-[#1e2f2e] to-gray-900 bg-opacity-95 backdrop-blur-md text-white flex flex-col p-6 transition-all duration-300 ease-in-out">
           <div className="flex items-center justify-between mb-6">
-            <Link href="/" className="text-2xl font-extrabold">
-              Muscle<span className="text-emerald-300">Factory</span>
+            <Link href="/" className="flex items-center">
+              <div className="relative h-10 md:h-14 w-auto">
+                <Image
+                  src="/images/logo.png"
+                  alt="MuscleFactory Logo"
+                  width={80}   // ✅ Set width
+                  height={80}  // ✅ Set height
+                  className="object-contain"
+                  priority
+                />
+              </div>
             </Link>
             <button
               className="text-3xl hover:text-red-400 transition"
@@ -133,9 +148,9 @@ export default function Navbar() {
               <Link
                 href="/Profile"
                 onClick={() => setMobileOpen(false)}
-                className="mt-4 flex items-center gap-2 border border-white px-4 py-2 rounded-full hover:bg-white hover:text-black transition-all duration-200"
+                className="mt-4 flex items-center gap-2 border border-white px-4 py-2 rounded-full hover:bg-white hover:text-black transition-all duration-200 text-2xl"
               >
-                <FaUserCircle className="text-lg" />
+                <FaUserCircle className="text-2xl md:text-3xl" />
                 Profile
               </Link>
             )}

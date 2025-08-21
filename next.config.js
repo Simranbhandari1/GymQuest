@@ -1,18 +1,3 @@
-// /** @type {import('next').NextConfig} */
-// const nextConfig = {
-//   reactStrictMode: true,
-//   experimental: {
-//     serverActions: true,
-//   },
-//   env: {
-//     RAPIDAPI_KEY: process.env.RAPIDAPI_KEY,
-//   },
-//   images: {
-//     domains: ['d205bpvrqc9yn1.cloudfront.net'],
-//   },
-// };
-
-// module.exports = nextConfig;
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -26,7 +11,10 @@ const nextConfig = {
     RAPIDAPI_KEY: process.env.RAPIDAPI_KEY,
   },
   images: {
-    domains: ["d205bpvrqc9yn1.cloudfront.net"],
+    domains: [
+      "d205bpvrqc9yn1.cloudfront.net", // for exercise API
+      "img.spoonacular.com",           // for Spoonacular recipes
+    ],
   },
 };
 

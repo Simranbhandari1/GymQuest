@@ -7,8 +7,9 @@ import Link from "next/link";
 import { useAuth } from "@/app/api/auth/AuthContext";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import LiquidChrome from "../components/organisms/LiquidChrome";
+import Script from "next/script";
 
-const ADMIN_EMAIL = "admin@gmail.com";
+const ADMIN_EMAIL = "admin_@gmail.com";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -32,10 +33,9 @@ export default function LoginPage() {
     }
   }, [searchParams]);
 
-  const validateEmail = useCallback(
-    (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
-    []
-  );
+  const validateEmail = useCallback((email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -71,7 +71,9 @@ export default function LoginPage() {
 
       toast.success("✅ Login successful");
 
-      if (typeof window !== "undefined") localStorage.setItem("token", data.token);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("token", data.token);
+      }
 
       login(data.user); // redirect handled by useEffect
     } catch {
@@ -79,6 +81,7 @@ export default function LoginPage() {
     }
   };
 
+  // ✅ Google Login callback
   const handleGoogleCredentialResponse = useCallback(
     async (googleResponse) => {
       try {
@@ -97,9 +100,11 @@ export default function LoginPage() {
 
         toast.success("✅ Google login successful");
 
-        if (typeof window !== "undefined") localStorage.setItem("token", data.token);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("token", data.token);
+        }
 
-        login(data.user); // redirect handled by useEffect
+        login(data.user);
       } catch {
         toast.error("❌ Something went wrong");
       }
@@ -107,47 +112,43 @@ export default function LoginPage() {
     [login]
   );
 
-  // Google login script
-  useEffect(() => {
-    if (typeof window === "undefined") return;
+  // ✅ Initialize Google button after script loads
+  const onGoogleScriptLoad = () => {
+    if (
+      typeof window !== "undefined" &&
+      window.google &&
+      process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+    ) {
+      window.google.accounts.id.initialize({
+        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+        callback: handleGoogleCredentialResponse,
+      });
 
-    const scriptId = "google-client-script-login";
-    if (document.getElementById(scriptId)) return;
-
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.defer = true;
-    script.id = scriptId;
-
-    script.onload = () => {
-      if (window.google && process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) {
-        window.google.accounts.id.initialize({
-          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-          callback: handleGoogleCredentialResponse,
+      const btn = document.getElementById("google-signin-btn");
+      if (btn) {
+        window.google.accounts.id.renderButton(btn, {
+          theme: "outline",
+          size: "large",
+          width: "100%",
         });
-
-        const btn = document.getElementById("google-signin-btn");
-        if (btn) {
-          window.google.accounts.id.renderButton(btn, {
-            theme: "outline",
-            size: "large",
-            width: "100%",
-          });
-        }
-
-        window.google.accounts.id.prompt();
       }
-    };
 
-    document.body.appendChild(script);
-  }, [handleGoogleCredentialResponse]);
+      // Optional One-Tap
+      window.google.accounts.id.prompt();
+    }
+  };
 
-  // Render login form only if no user is logged in
   if (user) return null;
 
   return (
     <main className="relative bg-gradient-to-b mt-12 from-black via-[#0f3e3b] to-black flex items-center justify-center min-h-screen">
+      {/* ✅ Google script with onLoad */}
+      <Script
+        src="https://accounts.google.com/gsi/client"
+        strategy="afterInteractive"
+        onLoad={onGoogleScriptLoad}
+      />
+
       <div className="absolute inset-0 z-0">
         <LiquidChrome baseColor={[0.1, 0.1, 0.1]} speed={1} amplitude={0.6} interactive />
       </div>
@@ -159,7 +160,9 @@ export default function LoginPage() {
           {/* Left: Form */}
           <div className="w-full md:w-1/2 p-10 flex flex-col justify-center">
             <h2 className="text-3xl font-bold text-white text-center mb-2">Login</h2>
-            <p className="text-center text-gray-300 mb-6">Welcome back to your fitness journey</p>
+            <p className="text-center text-gray-300 mb-6">
+              Welcome back to your fitness journey
+            </p>
 
             <input
               name="email"
@@ -190,11 +193,15 @@ export default function LoginPage() {
 
             <div className="text-center text-gray-300 text-sm my-6">or</div>
 
+            {/* ✅ Google Sign In Button */}
             <div id="google-signin-btn" className="w-full flex justify-center mb-4" />
 
             <p className="text-center text-gray-300 text-sm">
               Don’t have an account?{" "}
-              <Link href="/Signup" className="text-emerald-400 hover:underline font-semibold">
+              <Link
+                href="/Signup"
+                className="text-emerald-400 hover:underline font-semibold"
+              >
                 Register
               </Link>
             </p>
