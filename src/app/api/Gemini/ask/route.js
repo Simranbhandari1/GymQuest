@@ -14,7 +14,7 @@ export async function POST(req) {
     const prompt = `
 You are a professional fitness and nutrition coach.
 
-Generate a **7-day weekly plan** (Monday to Saturday) for a user with the following details:
+Generate a **7-day weekly plan (Monday to Saturday)** for this user:
 - Name: ${userData.name}
 - Age: ${userData.age}
 - Gender: ${userData.gender}
@@ -24,68 +24,96 @@ Generate a **7-day weekly plan** (Monday to Saturday) for a user with the follow
 - Diet Preference: ${userData.dietPreference}
 - Health Conditions: ${userData.health || "None"}
 
-For **each day (Monday to Saturday)** include:
-1. A **Workout Plan** title with workout type (e.g., Push Day, Pull Day, Rest Day)
-2. A **Diet Plan** with the following meals for that day:
-   - Breakfast
-   - Pre-Workout Snack
-   - Lunch
-   - Post-Workout Snack
-   - Dinner
+👉 Follow this format (like a fitness chart):
 
-Each meal should:
-- Start with a 🔹 title (e.g., "🔹 Breakfast")
-- Include a list of 3–5 food items prefixed with an index (01, 02, etc.)
+Each day should include:
+- 🔹 Breakfast
+- 🔹 Snack
+- 🔹 Lunch
+- 🔹 Snack
+- 🔹 Dinner
 
-Return the entire output in **pure HTML** inside one main <div class="weekly-plan">.
+Rules:
+1. Each meal must list **3–5 items** (numbered 01, 02, 03...).
+2. Return output in **pure HTML** inside one main <div class="weekly-plan">.
+3. Use only <div>, <h3>, <ul>, <li>. No tables, no markdown.
+4. Each day must be wrapped inside <div class="day"> with <h3> for the title.
+5. Clean and minimal structure — like a diet calendar.
 
-Use only:
-- <div>, <h3>, <ul>, <li>, and semantic clean HTML
-- No <table>, no markdown, no comments, no explanation text
-
-Make the structure modern, clean, and clearly separated for each day.
-
-Use this variation seed: ${uniqueSeed}
+Use variation seed: ${uniqueSeed}
 `;
 
+    // Call Gemini API
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const result = await model.generateContent(prompt);
     const response = await result.response;
     let rawHtml = await response.text();
 
-    // Cleanup unwanted formatting
+    // Cleanup: remove code fences / notes
     rawHtml = rawHtml
       .replace(/```html\s*/gi, '')
       .replace(/```/g, '')
       .replace(/Note:.*?(<br\s*\/?>)?/gi, '');
 
+    // CSS styling (3 cards per row, wider layout, responsive)
     const style = `
       <style>
+        body {
+          margin: 0;
+          padding: 0;
+          background: #111;
+          color: #fff;
+          font-family: sans-serif;
+        }
+        .weekly-plan {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr); /* ✅ Always 3 cards on desktop */
+          gap: 1.5rem;
+          padding: 2rem;
+          max-width: 1200px;  /* ✅ Wider container */
+          margin: 0 auto;
+          width: 100%;
+        }
+        .weekly-plan .day {
+          background: #222;
+          padding: 1.5rem;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+        }
         .weekly-plan h3 {
-          font-size: 1.2rem;
-          margin-top: 1.5rem;
+          font-size: 1.3rem;
+          margin-bottom: 1rem;
           color: #00ffff;
+          text-align: center;
         }
         .weekly-plan ul {
           list-style: none;
           padding-left: 0;
+          margin-bottom: 1rem;
         }
         .weekly-plan li {
-          color: #ccc;
-          margin-bottom: 4px;
-          font-family: monospace;
+          margin-bottom: 6px;
+          font-size: 1rem;
+          color: #ddd;
         }
-        .weekly-plan {
-          background-color: transparent;
-          color: white;
-          padding: 1rem;
+        /* ✅ Responsive: 2 cards on tablets */
+        @media (max-width: 992px) {
+          .weekly-plan {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        /* ✅ 1 card on mobile */
+        @media (max-width: 600px) {
+          .weekly-plan {
+            grid-template-columns: 1fr;
+          }
         }
       </style>
     `;
 
     const finalHtml = style + rawHtml;
 
-    // Save in MongoDB
+    // Save meal plan in DB
     await MealPlan.create({
       name: userData.name,
       age: userData.age,
@@ -110,7 +138,6 @@ Use this variation seed: ${uniqueSeed}
     });
   }
 }
-
 
 // import { GoogleGenerativeAI } from "@google/generative-ai";
 

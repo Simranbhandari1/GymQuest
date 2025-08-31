@@ -10,22 +10,17 @@ export default function DietPlanner() {
   const [formData, setFormData] = useState({
     name: '',
     age: '',
-    gender: '',
     height: '',
     weight: '',
     goal: '',
     dietPreference: '',
-    health: '',
   });
 
   const [loading, setLoading] = useState(false);
   const [htmlResult, setHtmlResult] = useState('');
   const [showForm, setShowForm] = useState(true);
 
-  const isFormComplete = Object.entries(formData).every(([key, val]) => {
-    if (key === 'health') return true;
-    return val.trim() !== '';
-  });
+  const isFormComplete = Object.values(formData).every(val => val.trim() !== '');
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -107,7 +102,7 @@ export default function DietPlanner() {
             <form
               onSubmit={handleSubmit}
               autoComplete="off"
-              className="bg-white/10 backdrop-blur-lg border border-white/20 shadow-2xl rounded-3xl p-8 w-full md:w-[60%]"
+              className="bg-white/10 backdrop-blur-lg shadow-2xl rounded-3xl p-8 w-full md:w-[60%]"
             >
               <h2 className="text-3xl font-bold text-center text-white mb-6">
                 Personalized Fitness & Nutrition Plan
@@ -116,12 +111,10 @@ export default function DietPlanner() {
               {[
                 { label: 'Name', field: 'name' },
                 { label: 'Age', field: 'age', type: 'number' },
-                { label: 'Gender', field: 'gender', type: 'select', options: ['Male', 'Female', 'Other'] },
                 { label: 'Height (cm)', field: 'height', type: 'number' },
                 { label: 'Weight (kg)', field: 'weight', type: 'number' },
                 { label: 'Fitness Goal', field: 'goal', type: 'select', options: ['Weight Loss', 'Muscle Gain', 'Maintenance', 'Improve Endurance', 'Boost Immunity', 'Body Toning'] },
-                { label: 'Diet Preference', field: 'dietPreference', type: 'select', options: ['Vegetarian', 'Non-Vegetarian', 'Vegan', 'Eggetarian'] },
-                { label: 'Any health problems? (optional)', field: 'health' }
+                { label: 'Diet Preference', field: 'dietPreference', type: 'select', options: ['Vegetarian', 'Non-Vegetarian', 'Vegan', 'Eggetarian'] }
               ].map(({ label, field, type = 'text', options }) => (
                 <div key={field} className="flex flex-col mb-4">
                   <label htmlFor={field} className="text-sm font-semibold mb-1 text-white">
@@ -169,7 +162,7 @@ export default function DietPlanner() {
           )}
 
           {loading && (
-            <div className="animate-pulse mt-10 w-full max-w-4xl p-6 rounded-2xl bg-gray-800/30 border border-gray-500 space-y-4">
+            <div className="animate-pulse mt-10 w-full max-w-5xl p-6 rounded-2xl bg-gray-800/30 space-y-4 shadow-lg">
               <div className="h-6 bg-gray-600 rounded w-1/2 mx-auto" />
               <div className="h-4 bg-gray-700 rounded w-1/3 mx-auto mb-4" />
               {[...Array(6)].map((_, i) => (
@@ -181,9 +174,8 @@ export default function DietPlanner() {
           {htmlResult && (
             <div
               id="diet-pdf-section"
-              className="relative mt-10 w-full max-w-4xl rounded-2xl shadow-xl border-2 border-gray-400 p-6 bg-gray-900/40 backdrop-blur-md text-white"
+              className="relative mt-10 w-full max-w-7xl rounded-2xl shadow-xl p-10 bg-gray-900/40 backdrop-blur-md text-white"
             >
-              {/* Lottie animation top-right */}
               <div className="absolute top-2 right-2 w-40 h-40">
                 <DotLottieReact
                   src="https://lottie.host/2088a459-1486-4c30-a924-6b331fd9b930/xQJd444q7C.lottie"
@@ -237,7 +229,7 @@ export default function DietPlanner() {
     </ProtectedRoute>
   );
 }
- 
+
 
 
 // 'use client';

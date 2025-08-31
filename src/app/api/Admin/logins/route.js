@@ -6,12 +6,15 @@ import jwt from "jsonwebtoken";
 const ADMIN_EMAIL = "admin_@gmail.com";
 const JWT_SECRET = process.env.JWT_SECRET;
 
-if (!JWT_SECRET) {
-  throw new Error("Missing JWT_SECRET environment variable");
-}
-
 export async function GET(request) {
   try {
+    if (!JWT_SECRET) {
+      return NextResponse.json(
+        { success: false, message: "JWT_SECRET is not configured on the server" },
+        { status: 500 }
+      );
+    }
+
     await connectDB();
 
     const authHeader = request.headers.get("authorization");
@@ -38,11 +41,14 @@ export async function GET(request) {
     if (decoded.email !== ADMIN_EMAIL) {
       return NextResponse.json(
         { success: false, message: "Unauthorized access" },
-        { status: 403 } // 403 is more appropriate for forbidden access
+        { status: 403 }
       );
     }
 
-    const users = await User.find({}, "name email createdAt lastLogin isBlocked role");
+    const users = await User.find(
+      {},
+      "name email createdAt lastLogin isBlocked role"
+    );
 
     return NextResponse.json({ success: true, users });
   } catch (error) {

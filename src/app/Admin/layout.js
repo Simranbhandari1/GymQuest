@@ -2,14 +2,24 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/app/api/auth/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function AdminLayout({ children }) {
   const [loading, setLoading] = useState(true);
+  const { logout } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 800);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleLogout = () => {
+    logout(); // clear context
+    localStorage.removeItem("token"); // remove token
+    router.push("/Login?logout=true"); // redirect to login with message
+  };
 
   return (
     <div className="flex min-h-screen font-sans bg-[#e0f2f1]">
@@ -32,7 +42,14 @@ export default function AdminLayout({ children }) {
             <NavItem label="Users" href="/Admin/users" />
             <NavItem label="Workouts" href="/Admin/Exercise" />
             <NavItem label="Contact" href="/Admin/Contact" />
-            <NavItem label="Back to User Panel" href="/" />
+
+            {/* ✅ Logout button */}
+            <button
+              onClick={handleLogout}
+              className="w-full text-left px-4 py-2 rounded-md border border-white + transition-colors duration-200"
+            >
+              Logout
+            </button>
           </div>
         )}
       </aside>

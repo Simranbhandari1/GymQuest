@@ -18,10 +18,14 @@ export default function LoginPage() {
 
   const [formData, setFormData] = useState({ email: "", password: "" });
 
-  // Redirect if already logged in
+  // ✅ Redirect if already logged in
   useEffect(() => {
     if (user) {
-      router.replace(user.email === ADMIN_EMAIL ? "/Admin" : "/Admin");
+      if (user.email === ADMIN_EMAIL) {
+        router.replace("/Admin");
+      } else {
+        router.replace("/");
+      }
     }
   }, [user, router]);
 
