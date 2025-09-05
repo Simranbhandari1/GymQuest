@@ -4,8 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/app/api/auth/AuthContext";
-import { FaUserCircle } from "react-icons/fa";
-import Image from "next/image"; // ✅ Import Next.js Image
+import { FaUserCircle, FaHome, FaDumbbell, FaAppleAlt, FaHeartbeat, FaCalculator, FaEnvelope, FaCog } from "react-icons/fa";
+import Image from "next/image";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -18,19 +18,19 @@ export default function Navbar() {
   if (pathname.startsWith("/Admin")) return null;
 
   const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Workouts", href: "/Exercise" },
-    { name: "Fitness", href: "/Gemini" },
-    { name: "Nutrition", href: "/Meals" },
-    { name: "BMI", href: "/BMI" },
-    { name: "Contact", href: "/ContactUS" },
+    { name: "Home", href: "/", icon: <FaHome /> },
+    { name: "Workouts", href: "/Exercise", icon: <FaDumbbell /> },
+    { name: "Fitness", href: "/Gemini", icon: <FaHeartbeat /> },
+    { name: "Nutrition", href: "/Meals", icon: <FaAppleAlt /> },
+    { name: "BMI", href: "/BMI", icon: <FaCalculator /> },
+    { name: "Contact", href: "/ContactUS", icon: <FaEnvelope /> },
   ];
 
   const finalNavLinks = [
     ...navLinks,
     ...(user &&
     user.email?.toLowerCase().trim() === ADMIN_EMAIL?.toLowerCase().trim()
-      ? [{ name: "Admin Panel", href: "/Admin" }]
+      ? [{ name: "Admin Panel", href: "/Admin", icon: <FaCog /> }]
       : []),
   ];
 
@@ -47,12 +47,12 @@ export default function Navbar() {
       <div className="flex items-center justify-between h-[70px] w-full">
         {/* Logo */}
         <Link href="/" className="flex items-center">
-          <div className="relative h-10 md:h-24 w-auto">
+          <div className="relative h-10 md:h-20 w-auto">
             <Image
               src="/images/logo.jpg"
               alt="MuscleFactory Logo"
-              width={96}  // ✅ Set width (can adjust)
-              height={96} // ✅ Set height (can adjust)
+              width={96}
+              height={96}
               className="object-contain"
               priority
             />
@@ -65,9 +65,9 @@ export default function Navbar() {
             <Link
               key={link.name}
               href={link.href}
-              className="border border-white rounded-full px-4 py-1.5 hover:bg-white hover:text-black hover:scale-105 transition-all duration-200 shadow-sm"
+              className="border border-white rounded-full px-4 py-1.5 flex items-center gap-2 hover:bg-white hover:text-black hover:scale-105 transition-all duration-200 shadow-sm"
             >
-              {link.name}
+              {link.icon} {link.name}
             </Link>
           ))}
         </nav>
@@ -102,7 +102,7 @@ export default function Navbar() {
 
         {/* Mobile Hamburger */}
         <button
-          className="md:hidden text-white text-2xl"
+          className="md:hidden text-white text-3xl"
           onClick={() => setMobileOpen(true)}
         >
           ☰
@@ -112,70 +112,72 @@ export default function Navbar() {
       {/* Mobile Sidebar */}
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-[999] bg-gradient-to-br from-black via-[#1e2f2e] to-gray-900 bg-opacity-95 backdrop-blur-md text-white flex flex-col p-6 transition-all duration-300 ease-in-out">
+          {/* Top Section */}
           <div className="flex items-center justify-between mb-6">
-            <Link href="/" className="flex items-center">
-              <div className="relative h-10 md:h-14 w-auto">
+            <Link href="/" className="flex items-center" onClick={() => setMobileOpen(false)}>
+              <div className="relative h-12 w-12">
                 <Image
-                  src="/images/logo.png"
+                  src="/images/logo.jpg"
                   alt="MuscleFactory Logo"
-                  width={80}   // ✅ Set width
-                  height={80}  // ✅ Set height
-                  className="object-contain"
+                  width={80}
+                  height={80}
+                  className="object-contain rounded-full border border-gray-700 shadow-md"
                   priority
                 />
               </div>
+              <span className="ml-3 text-xl font-bold tracking-wide">MuscleFactory</span>
             </Link>
             <button
-              className="text-3xl hover:text-red-400 transition"
+              className="text-4xl hover:text-red-400 transition"
               onClick={() => setMobileOpen(false)}
             >
               ×
             </button>
           </div>
 
+          {/* Nav Links */}
           <nav className="flex flex-col gap-4 text-base font-medium">
             {finalNavLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="rounded-full px-4 py-2 text-white border border-white hover:bg-white hover:text-black hover:scale-105 transition-all duration-200 ease-in-out shadow"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-800/40 border border-gray-700 hover:bg-emerald-500 hover:text-black hover:scale-105 transition-all duration-200 ease-in-out shadow-lg"
               >
-                {link.name}
+                <span className="text-lg">{link.icon}</span> {link.name}
               </Link>
             ))}
-            {user && (
-              <Link
-                href="/Profile"
-                onClick={() => setMobileOpen(false)}
-                className="mt-4 flex items-center gap-2 border border-white px-4 py-2 rounded-full hover:bg-white hover:text-black transition-all duration-200 text-2xl"
-              >
-                <FaUserCircle className="text-2xl md:text-3xl" />
-                Profile
-              </Link>
-            )}
           </nav>
 
-          {/* Mobile Auth */}
-          <div className="mt-8 flex flex-col gap-4 items-center">
-            {!user ? (
+          {/* Profile + Auth */}
+          <div className="mt-auto flex flex-col gap-4 pt-6 border-t border-gray-700">
+            {user ? (
+              <>
+                <Link
+                  href="/Profile"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 px-4 py-3 rounded-xl bg-gray-800/40 border border-gray-700 hover:bg-white hover:text-black transition-all duration-200 text-lg shadow-lg"
+                >
+                  <FaUserCircle className="text-2xl" /> Profile
+                </Link>
+                <button
+                  onClick={() => {
+                    setMobileOpen(false);
+                    handleLogout();
+                  }}
+                  className="px-4 py-3 rounded-xl bg-red-600 hover:bg-red-700 transition-all duration-200 font-semibold shadow-lg"
+                >
+                  Log Out
+                </button>
+              </>
+            ) : (
               <Link
                 href="/Login"
                 onClick={() => setMobileOpen(false)}
-                className="border border-white px-5 py-2 rounded-full w-full text-center hover:bg-white hover:text-black hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-center transition-all duration-200 font-semibold shadow-lg"
               >
                 Log In
               </Link>
-            ) : (
-              <button
-                onClick={() => {
-                  setMobileOpen(false);
-                  handleLogout();
-                }}
-                className="border border-white px-5 py-2 rounded-full w-full text-center hover:bg-red-500 hover:text-white hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg"
-              >
-                Log Out
-              </button>
             )}
           </div>
         </div>
