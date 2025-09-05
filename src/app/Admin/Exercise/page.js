@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 
 export default function AddExercise() {
   const [title, setTitle] = useState("");
@@ -27,6 +26,7 @@ export default function AddExercise() {
       setLoading(false);
       return;
     }
+
     const newExercise = { title, description, thumbnail, youtubeId, steps: [] };
 
     try {
@@ -35,127 +35,110 @@ export default function AddExercise() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newExercise),
       });
+
       if (res.ok) {
-        setMessage("Exercise added successfully!");
+        setMessage("✅ Exercise added successfully!");
         setTitle("");
         setDescription("");
         setThumbnail("");
         setYoutubeUrl("");
       } else {
         const errorData = await res.json();
-        setMessage(
-          `Failed to add exercise: ${errorData.message || res.statusText}`
-        );
+        setMessage(`❌ Failed: ${errorData.message || res.statusText}`);
       }
     } catch {
-      setMessage("An error occurred while submitting the form.");
+      setMessage("⚠️ An error occurred.");
     }
     setLoading(false);
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-black via-[#002b23] to-black relative overflow-hidden">
-      {/* Floating glowing blobs */}
-      <div className="absolute top-20 left-20 w-72 h-72 bg-green-400 opacity-20 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-20 right-20 w-72 h-72 bg-teal-300 opacity-20 rounded-full blur-3xl animate-pulse"></div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-8 w-full max-w-lg"
-      >
-        <h1 className="text-3xl font-extrabold mb-6 text-white text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      {/* Card with light bg + shadow */}
+      <div className="bg-gray-50 shadow-lg rounded-lg p-8 w-full max-w-lg border border-gray-200">
+        <h1 className="text-2xl font-bold mb-6 text-gray-800 text-center">
           Add New Exercise
         </h1>
 
-        {message && !loading && (
+        {message && (
           <div
-            className={`mb-6 p-4 rounded-lg text-sm font-medium ${
-              message.includes("successfully")
-                ? "bg-green-500/20 text-green-300"
-                : "bg-red-500/20 text-red-300"
+            className={`mb-6 p-3 rounded-md text-sm ${
+              message.includes("✅")
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
             }`}
           >
             {message}
           </div>
         )}
 
-        {loading ? (
-          // Skeleton Loader
-          <div className="space-y-5 animate-pulse">
-            <div className="h-10 bg-white/20 rounded-lg"></div>
-            <div className="h-24 bg-white/20 rounded-lg"></div>
-            <div className="h-10 bg-white/20 rounded-lg"></div>
-            <div className="h-10 bg-white/20 rounded-lg"></div>
-            <div className="h-12 bg-green-500/40 rounded-lg"></div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Title */}
+          <div>
+            <label className="block mb-1 font-medium text-gray-700">
+              Title *
+            </label>
+            <input
+              type="text"
+              placeholder="Enter exercise title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-green-400 outline-none bg-white"
+            />
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Title */}
-            <div>
-              <label className="block mb-1 font-semibold text-white">Title *</label>
-              <input
-                type="text"
-                placeholder="Enter exercise title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-                className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg outline-none placeholder-gray-300"
-              />
-            </div>
 
-            {/* Description */}
-            <div>
-              <label className="block mb-1 font-semibold text-white">Description</label>
-              <textarea
-                placeholder="Describe the exercise"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={4}
-                className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg outline-none placeholder-gray-300 resize-none"
-              />
-            </div>
+          {/* Description */}
+          <div>
+            <label className="block mb-1 font-medium text-gray-700">
+              Description
+            </label>
+            <textarea
+              placeholder="Describe the exercise"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-green-400 outline-none bg-white"
+            />
+          </div>
 
-            {/* Thumbnail */}
-            <div>
-              <label className="block mb-1 font-semibold text-white">
-                Thumbnail Public ID
-              </label>
-              <input
-                type="text"
-                placeholder="Cloudinary public ID"
-                value={thumbnail}
-                onChange={(e) => setThumbnail(e.target.value)}
-                className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg outline-none placeholder-gray-300"
-              />
-            </div>
+          {/* Thumbnail */}
+          <div>
+            <label className="block mb-1 font-medium text-gray-700">
+              Thumbnail Public ID
+            </label>
+            <input
+              type="text"
+              placeholder="Cloudinary public ID"
+              value={thumbnail}
+              onChange={(e) => setThumbnail(e.target.value)}
+              className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-green-400 outline-none bg-white"
+            />
+          </div>
 
-            {/* YouTube URL */}
-            <div>
-              <label className="block mb-1 font-semibold text-white">
-                YouTube Video URL
-              </label>
-              <input
-                type="url"
-                placeholder="Enter YouTube link"
-                value={youtubeUrl}
-                onChange={(e) => setYoutubeUrl(e.target.value)}
-                className="w-full bg-white/10 border border-white/20 text-white p-3 rounded-lg outline-none placeholder-gray-300"
-              />
-            </div>
+          {/* YouTube URL */}
+          <div>
+            <label className="block mb-1 font-medium text-gray-700">
+              YouTube Video URL
+            </label>
+            <input
+              type="url"
+              placeholder="Enter YouTube link"
+              value={youtubeUrl}
+              onChange={(e) => setYoutubeUrl(e.target.value)}
+              className="w-full border border-gray-300 p-2 rounded-md focus:ring-2 focus:ring-green-400 outline-none bg-white"
+            />
+          </div>
 
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              type="submit"
-              className="w-full bg-green-500/80 text-white font-bold py-3 rounded-lg text-lg shadow-md hover:bg-green-500 transition"
-            >
-              Submit Exercise
-            </motion.button>
-          </form>
-        )}
-      </motion.div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-green-500 text-white font-semibold py-2 rounded-md hover:bg-green-600 transition disabled:opacity-50"
+          >
+            {loading ? "Submitting..." : "Submit Exercise"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
