@@ -5,7 +5,7 @@ import Home from "./components/templates/Home";
 import SignupPage from "./Signup/page";
 import LoginPage from "./Login/page";
 import Gemini from "./Gemini/page";
-import TestimonialsSection from "./components/organisms/FrontHome/TestimonialsSection";
+
 export default function HomePage() {
   return (
     

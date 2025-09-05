@@ -2,6 +2,9 @@
 
 import React from "react";
 import LiquidChrome from "../LiquidChrome";
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
 const plans = [
   {
@@ -37,17 +40,34 @@ const plans = [
 ];
 
 export default function PlanPricingSection() {
+  const handleCheckout = async (plan) => {
+    const res = await fetch("/api/checkout_sessions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ plan }),
+    });
+
+    const { id, error } = await res.json();
+    if (error) {
+      alert("Payment error: " + error);
+      return;
+    }
+
+    const stripe = await stripePromise;
+    await stripe.redirectToCheckout({ sessionId: id });
+  };
+
   return (
     <section className="relative w-full py-20 px-6 md:px-12 text-white overflow-hidden font-sans bg-black">
-      {/* 🌊 Liquid Chrome Background */}
+      {/* Background */}
       <div className="absolute inset-0 z-0">
         <LiquidChrome />
       </div>
 
-      {/* 💫 Dark Overlay */}
+      {/* Overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-black via-[#052e2b] to-black opacity-90 z-10" />
 
-      {/* 📦 Content */}
+      {/* Content */}
       <div className="relative z-20 text-center">
         <h2 className="text-4xl md:text-5xl font-bold mb-4">
           Choose Your <span className="text-green-400">Plan</span>
@@ -79,7 +99,10 @@ export default function PlanPricingSection() {
                   </li>
                 ))}
               </ul>
-              <button className="mt-8 w-full py-2 rounded-xl text-sm font-semibold bg-gradient-to-r from-green-500 to-green-400 text-black hover:from-white hover:to-white hover:text-green-700 shadow-[0_0_10px_#00ffcc99] transition">
+              <button
+                onClick={() => handleCheckout(plan)}
+                className="mt-8 w-full py-2 rounded-xl text-sm font-semibold bg-gradient-to-r from-green-500 to-green-400 text-black hover:from-white hover:to-white hover:text-green-700 shadow-[0_0_10px_#00ffcc99] transition"
+              >
                 Buy Now ↗
               </button>
             </div>
